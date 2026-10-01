@@ -1,0 +1,5 @@
+# Bevy queries are legitimately verbose.
+type-complexity-threshold = 500
+
+# A Bevy system's parameters are its dependency declaration.
+too-many-arguments-threshold = 12

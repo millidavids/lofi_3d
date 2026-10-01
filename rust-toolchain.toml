@@ -1,0 +1,5 @@
+# Pinned so a new stable release can't turn fresh clippy lints into a broken
+# build. Bump deliberately: raise `channel`, run clippy, fix, commit together.
+[toolchain]
+channel = "1.98.0"
+components = ["clippy", "rustfmt"]

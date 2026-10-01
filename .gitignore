@@ -1,0 +1,7 @@
+/target
+# Editor side files: previous save, crash autosave, in-progress writes,
+# and the locks that keep two editors off one map.
+*.lofimap.bak
+*.lofimap.autosave
+*.tmp
+.*.lock

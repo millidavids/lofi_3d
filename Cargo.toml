@@ -1,0 +1,80 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+# bevy 0.19 and bevy_egui 0.42 both require 1.95.
+rust-version = "1.95"
+authors = ["Blackhearth Studios"]
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+correctness = { level = "deny", priority = -1 }
+suspicious = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
+style = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+uninlined_format_args = "warn"
+semicolon_if_nothing_returned = "warn"
+manual_let_else = "warn"
+redundant_clone = "warn"
+explicit_iter_loop = "warn"
+
+[workspace.dependencies]
+lofi_world = { path = "crates/lofi_world" }
+lofi_editor = { path = "crates/lofi_editor" }
+
+# `3d` is the engine, windowing and PBR without 2D, UI or audio. It keeps glTF
+# because the next tools will place models on the terrain.
+bevy = { version = "0.19.1", default-features = false, features = ["3d"] }
+# The pure crates use bevy's math types without pulling in the engine.
+bevy_math = "0.19"
+# No `bevy_ui`/`picking`: the editor has no bevy_ui and does its own picking.
+bevy_egui = { version = "0.42", default-features = false, features = [
+    "render",
+    "default_fonts",
+    "manage_clipboard",
+] }
+# Native file dialogs. On Linux this goes through xdg-desktop-portal.
+rfd = "0.17"
+
+serde = { version = "1.0", features = ["derive"] }
+# MessagePack with named fields: compact for height data, and self-describing so
+# `#[serde(default)]` keeps old maps loading as the format grows.
+rmp-serde = "1.3"
+# Bulk sections as MessagePack blobs instead of arrays of small values.
+serde_bytes = "0.11"
+# Pure-Rust zstd, already in the tree via Bevy: no C toolchain for cross builds.
+ruzstd = "0.8"
+# Section checksums; ruzstd writes no frame checksum of its own.
+crc32fast = "1.5"
+# Where untitled maps autosave.
+dirs = "6.0"
+thiserror = "2.0"
+# Heightmap import and export: 16-bit PNG plus a JSON sidecar. Both already in
+# the tree via Bevy.
+png = "0.18"
+serde_json = "1.0"
+
+# Our code builds fast; dependencies (all of bevy) run fast. Built once, cached.
+[profile.dev]
+opt-level = 0
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+# Brushes and remeshing run every frame over thousands of vertices.
+[profile.dev.package.lofi_world]
+opt-level = 1
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
